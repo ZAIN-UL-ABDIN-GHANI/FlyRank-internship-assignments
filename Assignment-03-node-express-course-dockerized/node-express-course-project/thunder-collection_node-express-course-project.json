@@ -1,0 +1,61 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Node.js + Express Course API",
+  "dateExported": "2026-07-14T00:00:00.000Z",
+  "version": "1.2",
+  "folders": [
+    { "_id": "f-auth", "name": "Auth", "containerId": "", "created": "2026-07-14T00:00:00.000Z", "sortNum": 10000 },
+    { "_id": "f-users", "name": "Users", "containerId": "", "created": "2026-07-14T00:00:00.000Z", "sortNum": 20000 },
+    { "_id": "f-categories", "name": "Categories", "containerId": "", "created": "2026-07-14T00:00:00.000Z", "sortNum": 30000 },
+    { "_id": "f-products", "name": "Products", "containerId": "", "created": "2026-07-14T00:00:00.000Z", "sortNum": 40000 },
+    { "_id": "f-orders", "name": "Orders", "containerId": "", "created": "2026-07-14T00:00:00.000Z", "sortNum": 50000 },
+    { "_id": "f-reviews", "name": "Reviews", "containerId": "", "created": "2026-07-14T00:00:00.000Z", "sortNum": 60000 },
+    { "_id": "f-demo", "name": "Demo", "containerId": "", "created": "2026-07-14T00:00:00.000Z", "sortNum": 70000 }
+  ],
+  "requests": [
+    { "_id": "r-register", "colId": "col1", "containerId": "f-auth", "name": "Register", "url": "{{baseUrl}}/api/auth/register", "method": "POST", "sortNum": 10000, "headers": [{ "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"SecurePass1\"\n}" } },
+    { "_id": "r-login-admin", "colId": "col1", "containerId": "f-auth", "name": "Login (Admin)", "url": "{{baseUrl}}/api/auth/login", "method": "POST", "sortNum": 20000, "headers": [{ "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin123!\"\n}" } },
+    { "_id": "r-login-user", "colId": "col1", "containerId": "f-auth", "name": "Login (User)", "url": "{{baseUrl}}/api/auth/login", "method": "POST", "sortNum": 30000, "headers": [{ "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"SecurePass1\"\n}" } },
+    { "_id": "r-me", "colId": "col1", "containerId": "f-auth", "name": "Get My Profile", "url": "{{baseUrl}}/api/auth/me", "method": "GET", "sortNum": 40000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }] },
+
+    { "_id": "r-users-list", "colId": "col1", "containerId": "f-users", "name": "List Users (admin)", "url": "{{baseUrl}}/api/users", "method": "GET", "sortNum": 10000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }] },
+    { "_id": "r-users-get", "colId": "col1", "containerId": "f-users", "name": "Get User By Id", "url": "{{baseUrl}}/api/users/{{userId}}", "method": "GET", "sortNum": 20000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }] },
+    { "_id": "r-users-update", "colId": "col1", "containerId": "f-users", "name": "Update User", "url": "{{baseUrl}}/api/users/{{userId}}", "method": "PUT", "sortNum": 30000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"name\": \"Jane D. Doe\"\n}" } },
+    { "_id": "r-users-delete", "colId": "col1", "containerId": "f-users", "name": "Delete User (admin)", "url": "{{baseUrl}}/api/users/{{userId}}", "method": "DELETE", "sortNum": 40000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }] },
+
+    { "_id": "r-cat-list", "colId": "col1", "containerId": "f-categories", "name": "List Categories", "url": "{{baseUrl}}/api/categories", "method": "GET", "sortNum": 10000 },
+    { "_id": "r-cat-get", "colId": "col1", "containerId": "f-categories", "name": "Get Category By Id", "url": "{{baseUrl}}/api/categories/{{categoryId}}", "method": "GET", "sortNum": 20000 },
+    { "_id": "r-cat-create", "colId": "col1", "containerId": "f-categories", "name": "Create Category (admin)", "url": "{{baseUrl}}/api/categories", "method": "POST", "sortNum": 30000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"name\": \"Toys\",\n  \"description\": \"Toys and games\"\n}" } },
+    { "_id": "r-cat-update", "colId": "col1", "containerId": "f-categories", "name": "Update Category (admin)", "url": "{{baseUrl}}/api/categories/{{categoryId}}", "method": "PUT", "sortNum": 40000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"description\": \"Toys, games, and puzzles\"\n}" } },
+    { "_id": "r-cat-delete", "colId": "col1", "containerId": "f-categories", "name": "Delete Category (admin)", "url": "{{baseUrl}}/api/categories/{{categoryId}}", "method": "DELETE", "sortNum": 50000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }] },
+
+    { "_id": "r-prod-list", "colId": "col1", "containerId": "f-products", "name": "List Products", "url": "{{baseUrl}}/api/products?search=head&minPrice=10&maxPrice=500", "method": "GET", "sortNum": 10000 },
+    { "_id": "r-prod-get", "colId": "col1", "containerId": "f-products", "name": "Get Product By Id", "url": "{{baseUrl}}/api/products/{{productId}}", "method": "GET", "sortNum": 20000 },
+    { "_id": "r-prod-create", "colId": "col1", "containerId": "f-products", "name": "Create Product (admin)", "url": "{{baseUrl}}/api/products", "method": "POST", "sortNum": 30000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"name\": \"Mechanical Keyboard\",\n  \"price\": 89.99,\n  \"stock\": 20,\n  \"categoryId\": \"{{categoryId}}\"\n}" } },
+    { "_id": "r-prod-put", "colId": "col1", "containerId": "f-products", "name": "Update Product - PUT (admin)", "url": "{{baseUrl}}/api/products/{{productId}}", "method": "PUT", "sortNum": 40000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"name\": \"Mechanical Keyboard v2\",\n  \"price\": 94.99,\n  \"stock\": 25,\n  \"categoryId\": \"{{categoryId}}\"\n}" } },
+    { "_id": "r-prod-patch", "colId": "col1", "containerId": "f-products", "name": "Patch Product - stock only (admin)", "url": "{{baseUrl}}/api/products/{{productId}}", "method": "PATCH", "sortNum": 50000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"stock\": 15\n}" } },
+    { "_id": "r-prod-delete", "colId": "col1", "containerId": "f-products", "name": "Delete Product (admin)", "url": "{{baseUrl}}/api/products/{{productId}}", "method": "DELETE", "sortNum": 60000, "headers": [{ "name": "Authorization", "value": "Bearer {{adminToken}}" }] },
+
+    { "_id": "r-order-list", "colId": "col1", "containerId": "f-orders", "name": "List My Orders", "url": "{{baseUrl}}/api/orders", "method": "GET", "sortNum": 10000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }] },
+    { "_id": "r-order-get", "colId": "col1", "containerId": "f-orders", "name": "Get Order By Id", "url": "{{baseUrl}}/api/orders/{{orderId}}", "method": "GET", "sortNum": 20000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }] },
+    { "_id": "r-order-create", "colId": "col1", "containerId": "f-orders", "name": "Create Order", "url": "{{baseUrl}}/api/orders", "method": "POST", "sortNum": 30000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"items\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 2 }\n  ]\n}" } },
+    { "_id": "r-order-status", "colId": "col1", "containerId": "f-orders", "name": "Update Order Status", "url": "{{baseUrl}}/api/orders/{{orderId}}/status", "method": "PATCH", "sortNum": 40000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"status\": \"paid\"\n}" } },
+    { "_id": "r-order-delete", "colId": "col1", "containerId": "f-orders", "name": "Delete Order", "url": "{{baseUrl}}/api/orders/{{orderId}}", "method": "DELETE", "sortNum": 50000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }] },
+
+    { "_id": "r-rev-list", "colId": "col1", "containerId": "f-reviews", "name": "List Reviews", "url": "{{baseUrl}}/api/reviews?productId={{productId}}", "method": "GET", "sortNum": 10000 },
+    { "_id": "r-rev-get", "colId": "col1", "containerId": "f-reviews", "name": "Get Review By Id", "url": "{{baseUrl}}/api/reviews/{{reviewId}}", "method": "GET", "sortNum": 20000 },
+    { "_id": "r-rev-create", "colId": "col1", "containerId": "f-reviews", "name": "Create Review", "url": "{{baseUrl}}/api/reviews", "method": "POST", "sortNum": 30000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"rating\": 5,\n  \"comment\": \"Great product!\"\n}" } },
+    { "_id": "r-rev-update", "colId": "col1", "containerId": "f-reviews", "name": "Update Review", "url": "{{baseUrl}}/api/reviews/{{reviewId}}", "method": "PUT", "sortNum": 40000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }, { "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"rating\": 4\n}" } },
+    { "_id": "r-rev-delete", "colId": "col1", "containerId": "f-reviews", "name": "Delete Review", "url": "{{baseUrl}}/api/reviews/{{reviewId}}", "method": "DELETE", "sortNum": 50000, "headers": [{ "name": "Authorization", "value": "Bearer {{userToken}}" }] },
+
+    { "_id": "r-demo-info", "colId": "col1", "containerId": "f-demo", "name": "Request Info", "url": "{{baseUrl}}/api/demo/request-info/abc123?anything=hello", "method": "GET", "sortNum": 10000 },
+    { "_id": "r-demo-echo", "colId": "col1", "containerId": "f-demo", "name": "Echo Body", "url": "{{baseUrl}}/api/demo/echo-body", "method": "POST", "sortNum": 20000, "headers": [{ "name": "Content-Type", "value": "application/json" }], "body": { "type": "json", "raw": "{\n  \"hello\": \"world\"\n}" } },
+    { "_id": "r-demo-cookie", "colId": "col1", "containerId": "f-demo", "name": "Set Cookie", "url": "{{baseUrl}}/api/demo/set-cookie", "method": "GET", "sortNum": 30000 },
+    { "_id": "r-demo-redirect", "colId": "col1", "containerId": "f-demo", "name": "Redirect Demo", "url": "{{baseUrl}}/api/demo/redirect", "method": "GET", "sortNum": 40000 },
+    { "_id": "r-demo-download", "colId": "col1", "containerId": "f-demo", "name": "Download Demo", "url": "{{baseUrl}}/api/demo/download", "method": "GET", "sortNum": 50000 },
+    { "_id": "r-demo-sendfile", "colId": "col1", "containerId": "f-demo", "name": "Send File Demo", "url": "{{baseUrl}}/api/demo/send-file", "method": "GET", "sortNum": 60000 },
+    { "_id": "r-demo-rawsend", "colId": "col1", "containerId": "f-demo", "name": "Raw Send Demo", "url": "{{baseUrl}}/api/demo/raw-send", "method": "GET", "sortNum": 70000 },
+
+    { "_id": "r-health", "colId": "col1", "containerId": "", "name": "Health Check", "url": "{{baseUrl}}/health", "method": "GET", "sortNum": 80000 }
+  ]
+}
