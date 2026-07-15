@@ -379,10 +379,4 @@ Node.js runs JavaScript outside the browser on Google's V8 engine, using an even
 - Add file upload support (e.g. product images) with multer
 - Containerize with Docker + docker-compose (API + Postgres)
 
-## Screenshots
 
-_Add screenshots of Swagger UI (`/docs`) and sample Postman runs here._
-
-## License
-
-MIT
