@@ -1,2 +1,0 @@
-This is a sample file used to demonstrate res.download() and res.sendFile()
-in the Node.js + Express course project.
