@@ -25,12 +25,14 @@ Each assignment is organized in its own directory and includes a dedicated `READ
 ```
 
 ## Assignments
-
 | No. | Assignment | Status |
-|-----|------------|--------|
+|-----|-----------------------------------------------|----------------|
 | 01 | FastAPI Minimal Backend | ✅ Completed |
-| 02 | Coming Soon | ⏳ |
-| 03 | Coming Soon | ⏳ |
+| 02 | Node.js + Express Course Project | ✅ Completed |
+| 03 | Node.js + Express Course Dockerized | ✅ Completed |
+| 03 | FastAPI + PostgreSQL + Docker self practice| ✅ Completed |
+| 04 | Coming Soon | ⏳ |
+| 05 | Coming Soon | ⏳ |
 
 > Each assignment folder contains complete documentation, source code, and instructions for evaluation.
 
