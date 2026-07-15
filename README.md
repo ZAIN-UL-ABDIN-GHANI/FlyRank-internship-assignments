@@ -1,4 +1,4 @@
-# Internship Assessments
+# FlyRank Internship Assessments
 
 This repository contains my completed internship assessment projects and technical assignments.
 
