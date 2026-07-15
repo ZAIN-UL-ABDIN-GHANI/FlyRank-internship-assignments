@@ -1,0 +1,45 @@
+services:
+  postgres-db:
+    image: postgres:16
+    container_name: postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      # Named volume: this is what makes data survive container/stack restarts
+      - postgres_data:/var/lib/postgresql/data
+      # Runs automatically ONLY the first time the container starts with an
+      # empty data directory (official postgres image behavior)
+      - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: node-express-course-app
+    restart: unless-stopped
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    environment:
+      PORT: ${PORT:-3000}
+      NODE_ENV: ${NODE_ENV:-production}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      API_KEY: ${API_KEY}
+      # Note: host is the service name "postgres-db", not "localhost" — Docker
+      # Compose puts both services on the same network and resolves service
+      # names via DNS.
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-db:5432/${POSTGRES_DB}
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+
+volumes:
+  postgres_data:
