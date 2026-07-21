@@ -370,6 +370,7 @@ Node.js runs JavaScript outside the browser on Google's V8 engine, using an even
 - **CommonJS modules** (`require`/`module.exports`) per the `"type"` omitted in `package.json`
 - **npm ecosystem** — the whole dependency tree (Express, JWT, bcrypt, Swagger, etc.) comes from npm, declared in `package.json`
 
+
 ## Future Improvements
 
 - Swap the in-memory repositories for a real PostgreSQL (or MongoDB) implementation

@@ -7,12 +7,9 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      REDIS_URL: redis://redis:6379/0
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_started
     restart: unless-stopped
 
   db:
@@ -26,17 +23,12 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./sql/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./sql/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
-
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
     restart: unless-stopped
 
 volumes:

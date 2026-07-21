@@ -1,17 +1,21 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
-class ItemCreate(BaseModel):
-    name: str = Field(..., min_length=1, max_length=200)
-    description: Optional[str] = None
-    price: float = Field(default=0, ge=0)
+class TaskCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
 
 
-class Item(ItemCreate):
+class TaskUpdate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    done: bool
+
+
+class Task(BaseModel):
     id: int
+    title: str
+    done: bool
     created_at: datetime
 
     class Config:

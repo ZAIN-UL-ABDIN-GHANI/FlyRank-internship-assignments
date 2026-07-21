@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.models import Item, ItemCreate
+from app.models import Task, TaskCreate, TaskUpdate
 from app.repositories.interface import ItemRepository
 
 
@@ -15,17 +15,17 @@ class ItemService:
     def __init__(self, repository: ItemRepository) -> None:
         self._repo = repository
 
-    async def create_item(self, data: ItemCreate) -> Item:
+    async def create_item(self, data: TaskCreate) -> Task:
         return await self._repo.create(data)
 
-    async def get_item(self, item_id: int) -> Optional[Item]:
-        return await self._repo.get(item_id)
+    async def get_item(self, task_id: int) -> Optional[Task]:
+        return await self._repo.get(task_id)
 
-    async def list_items(self) -> List[Item]:
+    async def list_items(self) -> List[Task]:
         return await self._repo.list()
 
-    async def update_item(self, item_id: int, data: ItemCreate) -> Optional[Item]:
-        return await self._repo.update(item_id, data)
+    async def update_item(self, task_id: int, data: TaskUpdate) -> Optional[Task]:
+        return await self._repo.update(task_id, data)
 
-    async def delete_item(self, item_id: int) -> bool:
-        return await self._repo.delete(item_id)
+    async def delete_item(self, task_id: int) -> bool:
+        return await self._repo.delete(task_id)

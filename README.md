@@ -1,6 +1,6 @@
 # FlyRank Internship Assessments
 
-This repository contains my completed internship assessment projects and technical assignments.
+This repository contains my completed internship assessment projects and technical assignmentsa.
 
 Each assignment is organized in its own directory and includes a dedicated `README.md` with:
 - Project overview

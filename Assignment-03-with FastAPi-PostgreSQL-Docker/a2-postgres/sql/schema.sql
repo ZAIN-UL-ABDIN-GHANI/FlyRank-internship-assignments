@@ -1,7 +1,6 @@
-CREATE TABLE IF NOT EXISTS items (
+CREATE TABLE IF NOT EXISTS tasks (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    price NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    title TEXT NOT NULL,
+    done BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
