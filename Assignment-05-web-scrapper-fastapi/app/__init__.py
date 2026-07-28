@@ -1,0 +1,1 @@
+"""Scraper service application package."""
