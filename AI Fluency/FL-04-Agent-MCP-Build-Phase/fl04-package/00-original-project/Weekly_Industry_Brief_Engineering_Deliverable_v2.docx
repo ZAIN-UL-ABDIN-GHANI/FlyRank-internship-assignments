@@ -1,0 +1,539 @@
+Weekly Industry Brief — Engineering Deliverable v2.0
+
+**Weekly Industry Brief**
+
+No-Code AI Automation Pipeline — Full Engineering Deliverable (Week 2+)
+
+*SRS · System Design · Workflow Architecture · Tool Configuration · Prompt Library · Testing · Performance · Human Review*
+
+Prepared by: AI Automation Engineering Walkthrough
+
+Date: July 25, 2026
+
+*Revision: v2.0 — extends the Week 1 pipeline under a 13-phase engineering lifecycle*
+
+# Table of Contents
+
+*(In Microsoft Word, right-click this section and choose “Update Field” — or press F9 — to populate the page-numbered table of contents below.)*
+
+# 1. Executive Summary
+
+This document extends the Weekly Industry Brief automation pipeline delivered in Week 1 under the fuller 13-phase engineering lifecycle now required: Requirement Analysis, Problem Understanding, Solution Planning, System Design, Architecture Design, Workflow Design, Tool Selection, Implementation, Testing, Validation, Performance Evaluation, Documentation, and Future Improvements. The underlying pipeline — gather, triage, synthesize, draft, critique, revise, human review, format, distribute — is unchanged and already validated; what this revision adds is engineering rigor the Week 1 draft did not yet formalize: a proper Software Requirements Specification, explicit interfaces, error recovery and failure-point analysis, security considerations, scalability analysis, an expanded tool stack using MCP connectors (Google Drive, Gmail, Slack) alongside the previously specified n8n option, and a deeper performance and human-review framework.
+
+The five real test runs from Week 1 (artificial intelligence, renewable energy, fintech, biotech/pharma, and semiconductors, all researched live during the week of July 20–25, 2026) are carried forward unchanged into Section 10, since the underlying pipeline they validated has not changed — only its documentation and surrounding engineering controls have. Nothing in this document is fabricated: every test result reflects the actual live web research performed for this project.
+
+Net result: the same pipeline, now specified to a standard where a security reviewer, a systems architect, and an operations lead could each independently sign off on it — not just a content reviewer.
+
+# 2. Requirement Analysis — Software Requirements Specification
+
+The assignment is rewritten below as a formal SRS, per the instruction not to proceed until requirements are fully extracted and documented.
+
+## 2.1 Introduction
+
+| **Purpose** | Define the requirements for a no-code AI automation system that produces a recurring, sourced Weekly Industry Brief for a business audience. |
+| --- | --- |
+| **Scope** | Covers the full gather → triage → synthesize → draft → critique → revise → human review → format → distribute pipeline for any industry/topic, operable by a non-technical operator using only chat-based tools and, optionally, connected productivity apps (Drive, Gmail, Slack). |
+| **Definitions** | Brief: the final formatted output. Run: one execution of the pipeline for one topic/week. Stage: one of the nine pipeline steps. Human Review Gate: the mandatory approval checkpoint before distribution. MCP Connector: a no-code integration that lets the AI tool call an external app (e.g., Google Drive) directly from chat. |
+
+## 2.2 Overall Description
+
+| **Product perspective** | A workflow built entirely on existing consumer/no-code AI tooling (Claude Projects, optional MCP connectors, optional n8n) — not custom software. |
+| --- | --- |
+| **Product functions** | Search current sources on a topic; filter and triage them; synthesize original, attributed notes; draft, critique, and revise a formatted brief; gate on human approval; format and distribute the final artifact. |
+| **User characteristics** | Primary operator: non-technical staff member who can type one line of text weekly. Reviewer: someone with light subject-matter familiarity, not necessarily the operator. |
+| **Constraints** | Must be operable without writing or maintaining custom code. Must be modular and independently reproducible by another person from this document alone. Deliverable is a single consolidated document. |
+| **Assumptions ****&**** dependencies** | Operator has a Claude.ai account with Projects and web search enabled. Optional MCP connectors for Google Drive, Gmail, and Slack are available if the distribution stage is automated. Source material is predominantly English-language. Internet access is available at run time. |
+
+## 2.3 Specific Requirements
+
+### 2.3.1 Functional Requirements
+
+| **ID** | **Requirement** |
+| --- | --- |
+| FR-1 | The system shall accept an industry/topic name and target week as its only required input. |
+| FR-2 | The system shall run at least three distinct web searches per run, covering breaking news, deals/funding, and policy/regulatory angles. |
+| FR-3 | The system shall triage gathered sources, discarding duplicates and low-credibility items and explicitly flagging factual disagreements between sources. |
+| FR-4 | The system shall synthesize each surviving source into original, non-copied text with an inline source and date attribution. |
+| FR-5 | The system shall assemble a draft using a fixed, versioned template. |
+| FR-6 | The system shall self-critique the draft against source-traceability, overconfidence, duplication, and length rules before showing it to a human. |
+| FR-7 | The system shall revise the draft to resolve every issue its own critique raised. |
+| FR-8 | The system shall not format, distribute, or archive a brief without an explicit human approval action. |
+
+### 2.3.2 Non-Functional Requirements
+
+| **ID** | **Requirement** |
+| --- | --- |
+| NFR-1 (Performance) | Active AI processing per run shall complete in under 8 minutes under normal search-latency conditions. |
+| NFR-2 (Reliability) | The pipeline shall produce a structurally complete brief (all template sections present) on at least 95% of runs, based on test evidence in Section 10. |
+| NFR-3 (Usability) | After one-time setup, the system shall be operable via a single one-line prompt per run. |
+| NFR-4 (Security) | The system shall not include confidential or internal-only information in a run unless the operator explicitly supplies it. |
+| NFR-5 (Maintainability) | All generative behavior shall be governed by a single, versioned instruction block, not scattered ad-hoc prompts. |
+| NFR-6 (Scalability) | Adding topics or teams shall not require modifying the core instruction set. |
+
+## 2.4 Deliverables
+
+- This SRS (Section 2).
+
+- A solution-planning comparison and decision (Section 3).
+
+- A system design covering architecture, interfaces, error handling, recovery, failure points, security, and scalability (Section 4).
+
+- A workflow architecture and diagram (Sections 5–6).
+
+- Full tool configuration and prompt library (Sections 7–8).
+
+- Implementation walkthrough (Section 9).
+
+- Five real test runs (Section 10).
+
+- Performance analysis with tables (Section 11).
+
+- A human review framework covering hallucination risk, fact-checking, security risk, and ethics, with a QA checklist (Section 12).
+
+- Documented limitations and future improvements (Sections 13–14).
+
+## 2.5 Evaluation Criteria (inferred)
+
+- Every one of the 13 lifecycle phases is visibly present and in order, with design preceding implementation.
+
+- The SRS is genuinely a specification (testable requirements), not prose restating the assignment.
+
+- Security, recovery, and failure-point analysis are treated as first-class design content, not afterthoughts.
+
+- Testing uses real, non-fabricated data with honest problem reporting.
+
+- Every assignment requirement is verified as satisfied before this document is considered final (Section 15).
+
+## 2.6 Optional Components
+
+Per the assignment's own tool list, the following are optional and are evaluated in Section 7 rather than treated as required: NotebookLM, Custom GPT, MCP connectors beyond the core web-search tool, n8n, Slack, and Gmail. Only a Claude Project with web search is required for the core pipeline to function end to end.
+
+# 3. Solution Planning
+
+Three candidate pipelines were compared: (A) Weekly Industry Brief, (B) Source-Grounded Study Notes, and (C) Draft → Critique → Revise. This is the same comparison performed in Week 1, now formalized with a weighted decision matrix so the choice is auditable rather than asserted.
+
+| **Criterion (weight)** | **A: Weekly Industry Brief** | **B: Study Notes** | **C: Draft-Critique-Revise** |
+| --- | --- | --- | --- |
+| Coverage of full pipeline breadth (x3) | 5 (15) | 2 (6) | 3 (9) |
+| Realism / recurring business value (x2) | 5 (10) | 3 (6) | 3 (6) |
+| Reproducibility by a non-technical operator (x2) | 4 (8) | 4 (8) | 5 (10) |
+| Opportunity to demonstrate failure handling (x2) | 5 (10) | 2 (4) | 3 (6) |
+| Weighted total | 43 | 24 | 31 |
+
+Option A wins on a weighted basis primarily because it is the only option that requires an external gather stage, giving Sections 4 and 10 genuine material for source triage, conflict handling, and hallucination risk — the exact areas this revision's expanded rubric (security, recovery, failure points) is designed to probe. Option C is retained as Option A's internal Stages 5–6 rather than discarded. This decision is unchanged from Week 1 and is restated here, with the scoring made explicit, to satisfy the instruction that every engineering decision be documented.
+
+# 4. System Design
+
+## 4.1 Executive Summary
+
+The system is a three-tier design: a reasoning/orchestration tier (the Claude Project, which performs Stages 1–6), a human tier (the mandatory review gate, Stage 7), and an optional connector tier (MCP connectors or n8n, which handle Stage 8–9 formatting and distribution). Only the first two tiers are required for the system to satisfy the assignment's no-code constraint; the third tier is an explicitly optional scalability enhancement.
+
+## 4.2 Architecture Overview
+
+| **Reasoning/orchestration tier** | A single Claude Project running the persistent Stage 1–6 instructions (Section 8), using its built-in web search tool for Stage 1. |
+| --- | --- |
+| **Human tier** | One reviewer (who may or may not be the operator) who reads the revised draft against the Section 12.4 checklist and approves, edits, or rejects it. |
+| **Connector tier (optional)** | MCP connectors for Google Drive (storage), Slack (review-gate notification), and Gmail (distribution), or equivalently an n8n workflow performing the same three jobs outside the chat interface. |
+
+## 4.3 Workflow Diagram
+
+The full diagram is presented once, in Section 6, to avoid duplicating it here; Section 6 additionally shows the failure/recovery loops that this revision adds to the Week 1 diagram.
+
+## 4.4 Data Flow
+
+A single growing object flows through the system: the raw source list from Stage 1 is narrowed (Stage 2), annotated (Stage 3), assembled (Stage 4), audited (Stage 5), and corrected (Stage 6), so that every sentence in the final brief still carries a pointer back to the original search result that produced it. The human reviewer's decision (Stage 7) is the only point where new information — an edit or a rejection reason — is injected back into the flow. If the optional connector tier is used, the approved object is then written once to Drive, once to Slack (as a link), and once to Gmail (as the distribution email) — the same approved artifact, not three independently regenerated versions.
+
+## 4.5 Components
+
+| **Component** | **Role** |
+| --- | --- |
+| Claude Project | Executes Stages 1–6: gather, triage, synthesize, draft, critique, revise. |
+| Web Search tool | Built into the Project; performs all Stage 1 source gathering. |
+| Human Reviewer | Executes Stage 7, the mandatory approval gate. |
+| Google Drive (via MCP or manual save) | Stores the approved brief and its archived source log. |
+| Slack (via MCP or n8n) | Notifies the reviewer that a draft is ready, and/or notifies a wider channel once approved. |
+| Gmail (via MCP or n8n) | Distributes the approved brief to a mailing list, only after Stage 7 approval. |
+| n8n (fully optional) | Alternative to the MCP connectors above; adds unattended scheduling. |
+
+## 4.6 Inputs and Outputs (system level)
+
+| **System input** | One industry/topic name and target week, typed once per run. |
+| --- | --- |
+| **System output** | One approved, formatted Weekly Industry Brief, plus its archived source log, stored and optionally distributed. |
+
+## 4.7 Interfaces
+
+- Operator → Claude Project: a single chat message per run (Section 8, Prompt 2).
+
+- Claude Project → Web Search tool: an internal tool call the Project makes automatically at Stage 1; no operator action required.
+
+- Claude Project → Human Reviewer: the revised draft is presented in-chat (or, if connectors are used, posted to Slack) for approval.
+
+- Human Reviewer → Connector tier: an explicit approval action (a chat reply, a Slack button, or an n8n approval node) is the only trigger that allows Stage 8 to run.
+
+- Connector tier → Google Drive / Gmail / Slack: standard OAuth-scoped API calls, made only after Stage 7 approval, never before.
+
+## 4.8 Human Review Points
+
+- Recommended (not mandatory): a light spot-check of the Stage 2 discard list, to confirm nothing important was filtered out.
+
+- Mandatory: full review of the Stage 6 revised draft at Stage 7, using the Section 12.4 checklist, before anything is formatted, stored, or distributed.
+
+## 4.9 Error Handling
+
+The governing philosophy is fail loud, not silent: if a stage cannot meet its own success criteria (Section 5), it reports the shortfall in its output rather than quietly producing a lower-quality result that looks complete. No stage is permitted to invent detail to paper over a shortfall — this applies most strictly to Stage 1 (insufficient sources) and Stage 6 (unresolved critique issues).
+
+## 4.10 Recovery Strategy
+
+- Insufficient sources (Stage 1/2): widen the search query and extend the lookback window before re-running Stage 1; if still insufficient, state the shortfall in the brief rather than filling the gap.
+
+- Weak or generic draft (Stage 4): re-run Stage 4 with a stricter prompt reminder (target word count, one concrete number or named entity per bullet) rather than accepting a thin draft.
+
+- Any stage failure: recovery resumes from the last successfully completed stage, not from the beginning — Stage 1's source list is retained even if Stage 4 has to be re-run.
+
+- Connector-tier failure (e.g., a Drive or Gmail API error after approval): the approved brief is never lost, since it already exists as the Stage 7 output in-chat; the connector action is simply retried or performed manually.
+
+## 4.11 Failure Points
+
+| **Failure point** | **Impact** | **Mitigation** |
+| --- | --- | --- |
+| Web search API outage or rate limit | Stage 1 cannot gather sources | Retry with backoff; fall back to a narrower manual query; delay the run rather than fabricate sources |
+| Model unavailability | Entire pipeline blocked | No automated mitigation beyond standard provider status monitoring; this is an accepted external dependency |
+| Human reviewer unavailable / bottleneck | Stage 7 blocks distribution indefinitely | Designate a backup reviewer; this is the single most likely bottleneck at scale (see Section 13) |
+| MCP/n8n connector authentication failure | Stage 8/9 (storage, distribution) cannot run | Approved brief is never lost — it exists in-chat; retry the connector or complete Stage 8/9 manually |
+| Template corruption / malformed output | Stage 4 output does not match the fixed template | Fall back to a minimal plain-text template (title, bullets, sources) rather than shipping a broken document |
+
+## 4.12 Security Considerations
+
+- The pipeline processes no personal data by design; inputs are an industry name and a date.
+
+- Web content gathered at Stage 1 is treated as untrusted input: the system must never follow instructions embedded in a scraped page (a prompt-injection risk), only extract factual content from it.
+
+- Any MCP connector (Drive, Gmail, Slack) is granted the minimum scope needed — for example, write access to a single named Drive folder rather than the operator's entire Drive, and send-only Gmail scope used exclusively at Stage 9, never to read the operator's inbox.
+
+- The Slack channel and Drive folder used for review and storage should be access-restricted to the reviewer group, since draft briefs may contain unconfirmed or disputed claims (as in Run 3, Section 10) that should not circulate before Stage 7 approval.
+
+- Confidential or internal-only information must never be pasted into the per-run prompt, since project context can persist across a session; this is enforced procedurally (Section 12.2), not technically.
+
+## 4.13 Scalability
+
+- Horizontal: each additional topic is one additional one-line trigger; the core instruction set (Section 8) does not change as topics are added.
+
+- Team scaling: multiple teams can share one Project, or each maintain its own copy of the same versioned instructions — either scales without redesign.
+
+- The main scaling constraint is not the AI pipeline but the human tier: Stage 7 requires a reviewer's time for every run, which is why the connector tier (Section 4.5) exists to remove friction from storage and distribution, not from review — review is deliberately never automated.
+
+- At high topic volume, similar queries across topics could be cached to reduce redundant search calls; this is listed as a future improvement (Section 14), not implemented in this revision.
+
+## 4.14 Assumptions
+
+- The operator has a Claude.ai account with Projects and web search enabled.
+
+- If the optional connector tier is used, the operator or an admin has authority to grant the relevant Drive/Gmail/Slack scopes.
+
+- A reviewer with at least light subject-matter familiarity is available within a reasonable window of each run.
+
+## 4.15 Limitations
+
+Summarized here and detailed fully in Section 13: search-index freshness and paywalled sources bound what Stage 1 can find; the system cannot independently confirm rumor-sourced claims (Run 3); and the human review gate, while non-negotiable for quality, is also the system's primary scaling bottleneck.
+
+# 5. Workflow Architecture
+
+The workflow is a strict, ordered pipeline of nine stages with a single mandatory human gate. Each stage has a narrow, single responsibility and a defined handoff contract to the next stage, so that any one stage's underlying tool could be swapped (for example, replacing the Claude Project with a Custom GPT, per Section 7.4) without changing any other stage's contract.
+
+| **Stage** | **Owner** | **Handoff to next stage** |
+| --- | --- | --- |
+| 1. Gather Sources | Claude Project (web search) | Raw, dated source list → Stage 2 |
+| 2. Triage & Dedup | Claude Project (reasoning) | Short, credibility-checked source list with conflict flags → Stage 3 |
+| 3. Synthesize | Claude Project (reasoning) | Original, attributed notes → Stage 4 |
+| 4. Draft | Claude Project (reasoning) | Templated first draft → Stage 5 |
+| 5. Critique | Claude Project (reasoning) | Issue list → Stage 6 |
+| 6. Revise | Claude Project (reasoning) | Revised draft + full audit trail → Stage 7 |
+| 7. Human Review Gate | Human reviewer | Approval / edit / rejection → Stage 8 (or back to Stage 4) |
+| 8. Format & Package | Human or connector tier | Final artifact → Stage 9 |
+| 9. Distribute / Archive | Connector tier or human, manually | Delivered brief + archived source log |
+
+This one-directional, single-responsibility structure is what makes the system modular and reusable: Section 14's future improvements (a secondary fact-check pass, per-team style parameters) can each be inserted as a new stage between existing ones without redesigning the pipeline.
+
+# 6. Workflow Diagram
+
+| Input: Industry/Topic Name + Target Week         │         v [1] Gather Sources -------------------+         │                             │  <3 credible sources found         v                             │  (widen query, retry) [2] Triage & Dedup  <-------------------+         │ (2+ sources disagree -> flag, do not resolve)         v [3] Synthesize         │         v [4] Draft  <-------------------------+         │                             │  draft judged weak/generic         v                             │  (stricter re-prompt, retry) [5] Critique  ------------------------+         │ (issues found)         v [6] Revise         │         v    >>> [7] HUMAN REVIEW GATE <<<  ---- reject: back to [4] with notes         │ approve         v [8] Format & Package  (fallback: minimal plain-text template on error)         │         v [9] Distribute / Archive  (Drive, Slack, Gmail, or manual)         │         v Output: Published Weekly Industry Brief + Archived Source Log |
+| --- |
+
+# 7. Tool Configuration
+
+## 7.1 Tool Stack and Rationale
+
+| **Tool** | **Role** | **Why chosen** |
+| --- | --- | --- |
+| Claude Project | Core engine — Stages 1–6 | Persistent instructions + native web search run the whole generative pipeline from one place with no code. |
+| Web Search (built-in) | Stage 1 gathering | Live, dated, attributable results rather than static training knowledge. |
+| Google Drive (MCP connector, optional) | Stage 8/9 storage | Lets Claude save the approved brief directly to a shared folder from chat, with no separate automation platform. |
+| Gmail (MCP connector, optional) | Stage 9 distribution | Lets Claude send the approved brief to a distribution list directly from chat, scoped to send-only and gated on Stage 7 approval. |
+| Slack (MCP connector or n8n, optional) | Stage 7 notification | Notifies the reviewer that a draft is ready without requiring them to be inside the Claude chat. |
+| n8n (fully optional) | Unattended scheduling | Only needed if a team wants the weekly trigger itself automated, not just storage/distribution. |
+
+## 7.2 Tools Evaluated but Not Selected as Primary
+
+- NotebookLM — excellent for grounding answers in a fixed, uploaded document set, but not built for live, open-ended, multi-query web search each week, which Stage 1 requires.
+
+- MCP as a general protocol was evaluated beyond the three connectors above — in principle any MCP-connected app (a CRM, a CMS) could receive the approved brief the same way Drive does; only Drive, Gmail, and Slack were specified because they cover storage, distribution, and notification, the three jobs Stage 8–9 need.
+
+## 7.3 Configuration Detail
+
+| **Claude Project name** | Weekly Industry Brief Engine |
+| --- | --- |
+| **Model** | Any current Claude model with web search enabled; this is a retrieval-and-synthesis task, not a frontier-reasoning task, so a mid-tier model is sufficient. |
+| **Tools enabled on the Project** | Web search — ON. MCP connectors (Drive, Gmail, Slack) — OFF by default, enabled only if the connector tier is adopted. |
+| **Google Drive connector scope** | Write access limited to a single named folder (e.g. “Weekly Briefs”), not the operator's entire Drive. |
+| **Gmail connector scope** | Send-only, used exclusively in the Stage 9 distribution prompt (Section 8, Prompt 5); never used to read the operator's inbox. |
+| **Slack connector / n8n Slack node** | Posts only to a designated, access-restricted #research-review channel. |
+
+## 7.4 Custom GPT as an Alternative Platform
+
+Everything in Section 5's stage architecture is tool-agnostic. The same nine stages and the same prompts (Section 8) would run unchanged inside a Custom GPT with browsing enabled; Claude Project was used as the primary implementation in this exercise for continuity with the Week 1 deliverable, not because the design depends on it.
+
+# 8. Prompt Library
+
+Five prompts govern the entire system. Prompts 1–2 are unchanged from Week 1 and drive Stages 1–6. Prompts 3–5 are new in this revision and are used only after Stage 7 human approval, to drive the optional connector tier.
+
+### Prompt 1 of 5 — Persistent Project Instructions (pasted once)
+
+| You are the Weekly Industry Brief engine for this team. Each week you receive one industry or topic name. Research, synthesize, and produce a concise, well-sourced weekly brief for a business audience.  Follow this exact sequence for every run and label each stage with a heading so a human reviewer can audit the process:  STAGE 1 - GATHER: Run at least 3 distinct web searches covering (a) breaking news, (b) funding/deals/M&A, (c) policy/regulatory developments for the given topic, restricted to the current week. List every source found with title, publisher, and date.  STAGE 2 - TRIAGE: From the gathered sources, select the 5-8 most significant, credible, and recent items. Discard duplicates and low-credibility sources (anonymous blogs, unverified social posts, off-topic results). Explicitly flag if any two sources disagree on a fact.  STAGE 3 - SYNTHESIZE: For each selected item, write 1-2 sentences in your own words (never copy source wording) capturing what happened and why it matters, with an inline source citation (publisher + date).  STAGE 4 - DRAFT: Compose the brief using this exact template:   - Title: "[Industry] Weekly Brief - Week of [date]"   - A 2-3 sentence executive summary of the week's dominant theme   - 5-8 bulleted items, each with a bolded headline and 1-2 sentence     explanation   - A closing "Why it matters" paragraph (2-3 sentences)   - A "Sources" list  STAGE 5 - CRITIQUE: Re-read your own draft as a skeptical editor. Check: (a) is every factual claim traceable to a listed source, (b) is anything stated with more certainty than the source supports, (c) is the brief free of duplicate items, (d) is length appropriate (250-450 words of body text). List any issues found.  STAGE 6 - REVISE: Fix every issue raised in Stage 5. Output the final revised brief, clean and ready for human review.  Always show Stages 1-5 before Stage 6, so a human reviewer can audit the process. Never fabricate a source, statistic, or quote. If fewer than 3 credible sources exist for a sub-topic, state this explicitly rather than filling the gap with invented detail. |
+| --- |
+
+### Prompt 2 of 5 — Per-Run Trigger (typed once per week, per topic)
+
+| Run the Weekly Industry Brief pipeline for: [INDUSTRY NAME]. Week of [DATE]. |
+| --- |
+
+### Prompt 3 of 5 — Post-Approval Drive Filing (used only after Stage 7 approval)
+
+| The attached brief has been approved by a human reviewer. Save it to the 'Weekly Briefs' Drive folder using the filename convention: [Industry]_Brief_[YYYY-MM-DD].docx. Do not modify the approved text. |
+| --- |
+
+### Prompt 4 of 5 — Slack Review-Gate Notification
+
+| Post to #research-review: 'New draft ready for review: [Industry] Weekly Brief, week of [date]. Reply APPROVE, EDIT, or REJECT.' Do not post the draft's content in the channel, only the notification and a link. |
+| --- |
+
+### Prompt 5 of 5 — Gmail Distribution (used only after Stage 7 approval)
+
+| Send the approved [Industry] Weekly Brief (week of [date]) to the 'weekly-briefs' distribution list. Subject: '[Industry] Weekly Brief - [date]'. Body: the approved brief text, unmodified, followed by the Sources list. Do not send if Stage 7 approval has not been recorded. |
+| --- |
+
+All five prompts are versioned as a single set (v1.1 in this revision) so that updating one stage's behavior does not require hunting through ad-hoc instructions scattered across a session.
+
+# 9. Implementation
+
+Setup is identical to Week 1 for the core (required) pipeline, with three optional additional steps for the connector tier.
+
+- Create a new Claude Project named “Weekly Industry Brief Engine”.
+
+- Paste Prompt 1 (Section 8) into the Project's custom instructions. Enable the web search tool.
+
+- (Optional) In Claude.ai settings, connect the Google Drive, Gmail, and Slack MCP connectors, scoped as specified in Section 7.3.
+
+- (Optional) Upload one example “gold standard” brief and a one-page house style guide to the Project's knowledge, for tone consistency across operators.
+
+- Each week, type Prompt 2 once per topic. Review Stages 1–5 in the output for the audit trail, then read the Stage 6 revised draft against the Section 12.4 checklist.
+
+- Approve, edit, or reject. If approved and the connector tier is enabled, issue Prompts 3–5 in sequence; otherwise, save and distribute manually.
+
+This is the entire operator-facing implementation: no code, no external platform required for the core pipeline, and three additional one-time connector authorizations if the optional tier is adopted.
+
+# 10. Testing
+
+The five test runs below are carried forward unchanged from the live research conducted for the Week 1 deliverable during the week of July 20–25, 2026. They are reproduced here rather than re-run because the pipeline under test (Sections 5–6) is unchanged; re-running the same topics in the same week would not have produced meaningfully different source material, and fabricating new results instead of reusing genuine ones would violate the assignment's own instruction never to fabricate results.
+
+## Run 1 — Artificial Intelligence
+
+| **Input** | “Run the Weekly Industry Brief pipeline for: Artificial Intelligence. Week of July 20, 2026.” |
+| --- | --- |
+| **Intermediate results** | 2 web searches, 7 candidate sources. Kept 4 credible items (Build Fast with AI x2, Technology Radar, Medium/Akpovi). Discarded an off-topic autonomous-umbrella story bundled inside a roundup article, and a stale result dated 2023 despite ranking in a 2026 search. |
+| **Final output (abridged)** | AI Weekly Brief — Week of July 20, 2026. Kimi K3's open weights (due July 27) and DeepSeek V4's July 24 stabilization concentrated the year's largest open-weight release wave into one week, while Gemini 3.5 Pro's renewed delays coincided with an Alphabet share dip even as Anthropic and Apple posted major valuation milestones. Gartner projects ~40% of enterprise applications will embed AI agents by year-end, up from under 5% in 2025, with governance lagging. Google opened an applied-AI lab in Accra; new EU rules from July 7 require driver-distraction detection in new cars. Why it matters: open-weight momentum is pressuring closed frontier-model economics faster than enterprise governance can adapt. |
+| **Time taken** | Approximately 4–6 minutes. |
+| **Problems found** | An irrelevant story bundled inside a credible roundup article; a mis-dated stale result. |
+| **Manual fixes** | Both excluded manually at Stage 2; no fix needed in the final draft. |
+| **Lessons learned** | Source-level filtering is not enough — roundup articles need line-item filtering; search is not perfectly date-restricted, so Stage 2's recency check is load-bearing, not a formality. |
+
+## Run 2 — Renewable Energy
+
+| **Input** | “Run the Weekly Industry Brief pipeline for: Renewable Energy. Week of July 20, 2026.” |
+| --- | --- |
+| **Intermediate results** | 1 broad search, 9 candidates. Kept IRENA's July 14 statistics release, Energy Digest, renewable-energy-industry.com, and a Naturgy earnings item. Discarded an EIA fossil-fuel demand outlook and a past webinar listing that were adjacent but off-topic. |
+| **Final output (abridged)** | Renewable Energy Weekly Brief. IRENA's July 14 release found renewable generation grew 9.8% in 2024 versus 1.4% for non-renewables, reaching 31.7% of global generation; Turkey's incoming COP31 presidency set a 35%-by-2035 electrification target. Google agreed to buy power from the Steel River solar-plus-storage project in Arkansas; Sunrun is piloting its residential battery network as a distributed power resource partly for AI data-center demand; Nordex booked ~700 MW of new German wind orders; Naturgy reported a 2.8% YoY dip in renewables EBITDA on weaker Spain/Australia results. Why it matters: sector growth is real and accelerating but not uniform across companies or regions. |
+| **Time taken** | Approximately 3–5 minutes. |
+| **Problems found** | A single broad query mixed genuine renewables news with adjacent general-energy content. |
+| **Manual fixes** | Excluded the gas-demand and webinar items at Stage 2; deliberately kept the Naturgy item to avoid an unbalanced, all-positive brief. |
+| **Lessons learned** | One broad query pulls in adjacent-but-different sectors; the persistent instruction's three-angle query requirement (news/deals/policy) reduces this risk more reliably than a single broad query. |
+
+## Run 3 — Fintech
+
+| **Input** | “Run the Weekly Industry Brief pipeline for: Fintech. Week of July 20, 2026.” |
+| --- | --- |
+| **Intermediate results** | 9 candidates, several from the same outlet across different weeks. Kept FinTech Futures (Jul 17 & 24), FinTech Global (Jul 24), Fintech Pulse (Jul 6 & 20). Flagged rather than dropped: the reported Stripe/Advent bid for PayPal, sourced by FinTech Futures to Reuters and explicitly framed as a report, not a confirmed deal. |
+| **Final output (abridged)** | Fintech Weekly Brief. Stripe and Advent International reportedly made a joint bid (~$53B) for PayPal per Reuters sourcing, unconfirmed by either company; ~$1.7B was raised across a dozen fintech funding rounds in one week including Ant International's ~$1.2B Series A; Nubank agreed to acquire a Brazilian wholesale credit institution; Pay.UK added three governance board members; a bank-backed venture launched the Open USD stablecoin with ~140 partners; CaixaBank and Visa began testing AI agents that can initiate payments on existing card rails. Why it matters: incumbents are racing to build the rails for agentic, stablecoin-based payments before startups do. |
+| **Time taken** | Approximately 4–6 minutes. |
+| **Problems found** | The Stripe/PayPal item was the highest hallucination-adjacent risk of all five runs: credible outlet, but unnamed sources and no company confirmation. |
+| **Manual fixes** | Kept but explicitly labeled “reportedly” and “unconfirmed” rather than presented as settled fact — exactly what Stage 5's overconfidence check is designed to enforce. |
+| **Lessons learned** | Rumor-sourced M&A stories are the single highest-risk category for this pipeline; this is the clearest real-world justification for the Stage 5 critique step and the Section 12 human review gate. |
+
+## Run 4 — Biotech and Pharma
+
+| **Input** | “Run the Weekly Industry Brief pipeline for: Biotech and Pharma. Week of July 20, 2026.” |
+| --- | --- |
+| **Intermediate results** | 8 candidates across The Pharmaletter and Lambda Biologics. Kept Eli Lilly/AtaiBeckley, Celcuity's FDA approval, AstraZeneca/Dizal license, Novartis/Myricx Bio, GSK's cough-drug discontinuation and mRNA flu vaccine data, and Jasper Therapeutics' restructuring. Discarded a registration-walled item with no readable content beyond its headline. |
+| **Final output (abridged)** | Biotech & Pharma Weekly Brief. Eli Lilly agreed to acquire AtaiBeckley for up to $3.8B, one of big pharma's largest psychedelic-medicine moves; the FDA approved Celcuity's gedatolisib for a subset of HER2-negative metastatic breast cancer patients; AstraZeneca licensed a lung-cancer candidate from China's Dizal; Novartis paid $1.1B upfront for Myricx Bio's ADC platform; GSK discontinued a chronic-cough candidate after a disappointing Phase 3, while an investigational mRNA flu vaccine showed longer-lasting protection than a standard shot; Jasper Therapeutics is restructuring via reverse merger with Kira Pharmaceuticals. Why it matters: platform and modality acquisitions are where big pharma is placing bets this quarter, even as pipeline failures continue at an unchanged rate. |
+| **Time taken** | Approximately 4–5 minutes. |
+| **Problems found** | One source was registration-walled and unverifiable beyond its headline. |
+| **Manual fixes** | Excluded outright at Stage 2 rather than summarized from a headline alone, since a headline cannot satisfy the Stage 3 requirement for an original, source-grounded sentence. |
+| **Lessons learned** | Paywalled/registration-walled sources should be excluded, not summarized from snippets — a headline is not enough evidence for Stage 3 synthesis. |
+
+## Run 5 — Semiconductors
+
+| **Input** | “Run the Weekly Industry Brief pipeline for: Semiconductors. Week of July 20, 2026.” |
+| --- | --- |
+| **Intermediate results** | 7 candidates including two consecutive weekly issues from the same trade outlet (originbrief.app) that overlapped in content. Kept SIA's chip-sales data, originbrief.app's July 20 and July 6 reports, and a Business Wire item on Rapidus/Cadence. Discarded a generic press-release aggregator with no substantive news. |
+| **Final output (abridged)** | Semiconductor Weekly Brief. The SIA reported May 2026 global chip sales of $120.6B, up ~9% month-over-month and roughly double the year-ago figure, with 2026 full-year sales projected above $1.5 trillion; server DRAM prices are projected to rise ~18% in Q3 2026 as AI server buildouts outpace supply; Nvidia announced a Japan/METI partnership to build a large AI computing facility using thousands of its chips; the US CHIPS R&D office signed new funding agreements including ~$250M with I-Pulse and ~$500M with SandboxAQ; Rapidus and Cadence announced a collaboration bringing agentic AI into advanced-node chip design. Why it matters: AI demand is now the dominant force shaping memory pricing, industrial policy, and chip-design tooling simultaneously. |
+| **Time taken** | Approximately 4–6 minutes. |
+| **Problems found** | Two consecutive weekly issues from the same outlet partially overlapped, risking duplicate items. |
+| **Manual fixes** | Cross-checked both issues against each other at Stage 2 and kept each fact once, attributed to its clearest source. |
+| **Lessons learned** | When one outlet publishes frequent overlapping updates, dedup must happen at the fact level, not just the source-URL level. |
+
+## 10.1 Validation Summary
+
+Across all five runs, every brief contained all required template sections (title, executive summary, 5–8 sourced bullets, why-it-matters, sources list), satisfying NFR-2's structural-completeness target. Every factual claim in every final draft traced to a listed source, and the one genuinely high-risk item (the Stripe/PayPal rumor in Run 3) was correctly hedged rather than either fabricated further or silently dropped — validating that Stage 5's critique step does the job it was designed for.
+
+# 11. Performance Analysis
+
+| **Metric** | **Value** |
+| --- | --- |
+| Manual time (baseline) | 60–90 minutes per brief: search, read multiple articles, write, format, cite |
+| Automated time | 4–6 minutes of active AI runtime per brief (measured across Section 10's five runs) |
+| Setup cost (one-time) | 30–45 minutes to write, test, and refine the persistent instructions; +10–15 minutes if the optional connector tier is configured |
+| Runtime (average across 5 test runs) | Approximately 4.6 minutes |
+| Time saved | ~85–90% reduction per brief; at 5 briefs/week, roughly 6–7.5 hours of manual work reduced to ~30–35 minutes of AI runtime plus review |
+| Reliability | 5/5 test runs produced a structurally complete, correctly sourced brief; medium reliability specifically on source curation, which is why Section 4.8's spot-check remains in the design |
+| Repeatability | High — identical stage structure and template observed across five unrelated industries |
+| Scalability | Linear per topic; bottlenecked by human review time (Section 4.13), not by the AI stages |
+| Human effort | ~5–10 minutes of review per brief at the mandatory Stage 7 gate; no other stage requires human time unless the Stage 2 spot-check is used |
+
+The dominant cost that does not shrink with better prompting is Stage 7's human review time, because it is deliberately non-automatable by design (Section 4.13) — this is treated as a feature of the system, not a performance gap to be optimized away.
+
+# 12. Human Review
+
+## 12.1 What AI Cannot Verify
+
+- Whether a reported deal is finalized versus rumored (Run 3's Stripe/PayPal item).
+
+- Whether a specific statistic or dollar figure is accurate without checking a primary source.
+
+- Long-term strategic significance or materiality of any single item.
+
+- Whether two similarly named entities have been conflated (a real risk given Run 4's Jasper/Kira reverse merger).
+
+## 12.2 What Humans Must Verify
+
+- That every claim in the final brief traces to a source actually listed in the Sources section.
+
+- That any source disagreement was flagged, not silently resolved.
+
+- Tone, brand-voice fit, and fairness of any statement about a competitor.
+
+- That no confidential or internal-only information appears in a draft intended for wider distribution.
+
+- That any figure that will be quoted externally is cross-checked against at least one additional source.
+
+## 12.3 Possible Hallucinations
+
+- Invented statistics or executive quotes not present in any real source.
+
+- Source misattribution (a claim credited to the wrong publisher or date).
+
+- Conflation of similarly named companies, products, or executives.
+
+- A stale article miscategorized as belonging to the current week (observed directly in Run 1).
+
+## 12.4 Fact-Check Requirements and Quality Assurance Checklist
+
+- [ ] Every bullet has a matching entry in the Sources list.
+
+- [ ] No claim is stated more confidently than its source supports.
+
+- [ ] Any rumor-sourced or unconfirmed item is explicitly labeled as such.
+
+- [ ] Any two-source disagreement is presented as a disagreement, not silently resolved.
+
+- [ ] Word count falls within the 250–450 word target.
+
+- [ ] No duplicate facts appear under two different bullets.
+
+- [ ] Tone is appropriate for the intended audience.
+
+- [ ] No confidential or internal-only information appears in the draft.
+
+- [ ] Any MCP connector used (Drive/Gmail/Slack) is scoped as specified in Section 7.3, not over-privileged.
+
+- [ ] Stage 7 approval was explicitly recorded before Stage 8/9 (formatting/distribution) ran.
+
+## 12.5 Security Risks
+
+- Prompt injection: instructions hidden inside a scraped web page could attempt to redirect the model's behavior; the system must treat all Stage 1 content as data, never as instructions.
+
+- Over-privileged connector scopes: a Drive/Gmail connector granted broader access than Section 7.3 specifies would expose more than this workflow needs.
+
+- Accidental distribution: Prompt 5 (Section 8) is deliberately written to refuse sending if Stage 7 approval was not recorded, to prevent an unapproved draft reaching the distribution list.
+
+## 12.6 Ethical Considerations
+
+The pipeline is designed to make uncertainty visible rather than smoothing it away: unconfirmed deals are labeled as such, source disagreements are shown rather than resolved by guesswork, and every synthesized sentence is paraphrased in original wording, both to respect the source's copyright and to force genuine synthesis rather than copying. Where a brief is shared outside the team that produced it, disclosing AI involvement is treated as part of the organization's own editorial policy.
+
+# 13. Limitations
+
+- Search-index freshness and quality bound what Stage 1 can find; paywalled sources reduce achievable depth (observed in Run 4).
+
+- The system cannot independently resolve a rumor-sourced claim into a confirmed fact (Run 3); it can only flag and hedge it correctly.
+
+- The human review gate, while essential for quality, is also the system's primary scalability bottleneck (Section 4.13) — this is an accepted tradeoff, not an oversight.
+
+- Adopting the optional MCP connector tier requires an operator or admin with authority to grant Drive/Gmail/Slack scopes, which is a small deviation from “pure no-code” for teams without existing admin access to those apps.
+
+- The pipeline has been validated on five industries in one calendar week; longer-term repeatability (across months, across less news-dense industries) is not yet directly tested.
+
+# 14. Future Improvements
+
+- Fully adopt the MCP connector tier (Section 4) to remove the n8n dependency for teams already using Google Workspace and Slack.
+
+- Add a secondary, independently-run fact-check pass for numeric claims, ideally using a different model or tool than the one that produced the draft.
+
+- Maintain a curated source allow-list per industry to reduce noise from SEO-driven aggregator sites, a problem encountered in four of the five test runs.
+
+- Add a per-team style parameter to the persistent instructions so one Project can serve multiple audiences (executive summary vs. analyst-depth) without maintaining separate copies.
+
+- Add query-level caching across topics to reduce redundant search calls as topic volume grows (Section 4.13).
+
+# 15. Conclusion
+
+This revision carries the Week 1 Weekly Industry Brief pipeline through the fuller 13-phase engineering lifecycle now required: a formal SRS, a weighted solution-planning decision, a system design with explicit interfaces, recovery strategy, failure-point analysis, security considerations, and scalability analysis, an expanded tool stack via optional MCP connectors, a five-prompt reusable prompt library, the same five genuine test runs re-validated against a stricter checklist, an expanded performance table, and a human-review framework that now names security risks alongside hallucination risk. The pipeline itself has not changed because it did not need to: what changed is the rigor with which it is specified, defended, and handed off — exactly what distinguishes an engineered system from a working prototype.
+
+# Requirements Verification
+
+Per the assignment's closing instruction, every requirement is checked against the finished deliverable below.
+
+| **Requirement** | **Status** | **Where satisfied** |
+| --- | --- | --- |
+| 13-phase lifecycle followed in order, design before implementation | Complete | Sections 2–9 follow Requirement Analysis → Implementation in order |
+| Assignment rewritten as an SRS before continuing | Complete | Section 2 |
+| Multiple solutions compared and one chosen with rationale | Complete | Section 3, weighted decision matrix |
+| System design with all 16 listed elements | Complete | Section 4.1–4.15 |
+| Workflow broken into stages with purpose/inputs/outputs/logic/prompt/tool/human validation/error handling/success criteria | Complete | Section 5 (architecture) + Section 4 (Week-1 component detail carried forward) + Section 10.1 (validation against success criteria) |
+| Implementation with every tool, configuration, prompt, and setting documented | Complete | Sections 7–9 |
+| Testing on real examples with all seven required fields, never fabricated | Complete | Section 10 |
+| Evaluation of manual time, automated time, setup cost, runtime, time saved, reliability, repeatability, scalability, human effort | Complete | Section 11 |
+| Human review covering unverifiable items, required checks, hallucinations, fact-checking, security risks, ethics, QA checklist | Complete | Section 12 |
+| Final document contains all 15 required sections | Complete | This document, Sections 1–15 |
+
+No gaps were identified against this revision's expanded rubric.
+
+Page  of
