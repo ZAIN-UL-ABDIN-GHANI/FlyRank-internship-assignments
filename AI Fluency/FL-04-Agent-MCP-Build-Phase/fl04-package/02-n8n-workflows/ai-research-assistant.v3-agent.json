@@ -1,0 +1,647 @@
+{
+  "name": "AI Research Assistant",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "2",
+      "name": "Set Topic",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -980,
+        300
+      ],
+      "notes": "Non-technical user edits this one field before each run.",
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "topic-field",
+              "name": "topic",
+              "type": "string",
+              "value": "Artificial Intelligence"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Search API (Tavily)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -760,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "tavilyApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"query\": $json.topic, \"max_results\": Number($env.MAX_SEARCH_RESULTS || 8), \"search_depth\": \"advanced\" } }}",
+        "options": {
+          "timeout": 15000,
+          "retry": {
+            "retryOnFail": true,
+            "maxTries": 3,
+            "waitBetweenTries": 2000
+          },
+          "onError": "continueErrorOutput"
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Tavily API"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "name": "No Results?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -540,
+        300
+      ],
+      "notes": "FR-2 / 'No search results' handling from docs/error-handling.md",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-empty",
+              "leftValue": "={{ ($json.results || []).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Alert: No Results",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        180
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $env.NOTIFY_EMAIL }}",
+        "subject": "=No sources found: {{ $json.topic }}",
+        "message": "=No current sources were found for \"{{ $json.topic }}\". Try a more specific or differently phrased topic. See docs/testing.md (Run 5, Finance) for guidance on topic specificity."
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "id": "6",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        420
+      ],
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      }
+    },
+    {
+      "id": "7",
+      "name": "LLM Summarizer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -100,
+        420
+      ],
+      "notes": "Runs once per item (per search result). See prompts/02-summarization-prompt.md",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"model\": $env.LLM_MODEL, \"max_tokens\": 300, \"messages\": [ { \"role\": \"user\", \"content\": \"You are summarizing one web search result for a research report on: \" + $('Set Topic').item.json.topic + \"\\n\\nSource title: \" + $json.title + \"\\nSource URL: \" + $json.url + \"\\nSource snippet: \" + $json.snippet + \"\\n\\nWrite a 2-3 sentence summary in your own original words. If insufficient, respond exactly: INSUFFICIENT_CONTENT. Return only the summary text.\" } ] } }}",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "retryOnFail": true,
+            "maxTries": 2,
+            "waitBetweenTries": 1500
+          },
+          "onError": "continueErrorOutput"
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "id": "8",
+      "name": "Filter Failed Items",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        420
+      ],
+      "notes": "Excludes items where the LLM Summarizer failed or returned INSUFFICIENT_CONTENT",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-has-summary",
+              "leftValue": "={{ $json.content?.[0]?.text || '' }}",
+              "rightValue": "INSUFFICIENT_CONTENT",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "9",
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        340,
+        420
+      ],
+      "notes": "Aggregate (not Merge) \u2014 recombines N per-item summaries into one item. See docs/solution-planning.md engineering decision log.",
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "outputFieldName": "summaries"
+        }
+      }
+    },
+    {
+      "id": "10",
+      "name": "Markdown Generator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        420
+      ],
+      "notes": "Deterministic templating \u2014 see docs/n8n-configuration.md for the full JS.",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const topic = $('Set Topic').item.json.topic;\nconst summaries = $input.first().json.summaries || [];\n\nconst findings = summaries.map(s => `- **${s.title}**: ${s.summary} ([source](${s.url}))`).join('\\n');\nconst sources = summaries.map(s => `- [${s.title}](${s.url})`).join('\\n');\n\nconst report = `# ${topic} \\u2014 Research Report\\n\\n## Executive Summary\\nThis report summarizes ${summaries.length} current sources on \"${topic}\", gathered and synthesized automatically on ${new Date().toISOString().slice(0,10)}.\\n\\n## Key Findings\\n${findings || '_No findings could be summarized for this run._'}\\n\\n## Sources\\n${sources || '_No sources available._'}\\n`;\n\nreturn [{ json: { topic, report } }];"
+      }
+    },
+    {
+      "id": "13",
+      "name": "Google Drive Upload (Approved)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1220,
+        300
+      ],
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "name": "={{ $('Set Topic').item.json.topic.replace(/\\s+/g,'_') }}_{{ $now.format('yyyy-MM-dd') }}.md",
+        "driveId": "={{ $env.DRIVE_FOLDER_ID }}",
+        "options": {}
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "id": "14",
+      "name": "Gmail Notification (Approved)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $env.NOTIFY_EMAIL }}",
+        "subject": "=Research Report: {{ $('Set Topic').item.json.topic }}",
+        "message": "=Your report on {{ $('Set Topic').item.json.topic }} is ready: {{ $json.webViewLink }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "id": "15",
+      "name": "Google Drive Upload (Needs Review)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1220,
+        540
+      ],
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "name": "=NEEDS_REVIEW_{{ $('Set Topic').item.json.topic.replace(/\\s+/g,'_') }}_{{ $now.format('yyyy-MM-dd') }}.md",
+        "driveId": "={{ $env.DRIVE_FOLDER_ID }}",
+        "options": {}
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "id": "16",
+      "name": "Gmail Notification (Needs Review)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        540
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $env.NOTIFY_EMAIL }}",
+        "subject": "=[NEEDS REVIEW] Research Report: {{ $('Set Topic').item.json.topic }}",
+        "message": "=The report on {{ $('Set Topic').item.json.topic }} needs a quick human check before sharing further: {{ $json.webViewLink }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "id": "17",
+      "name": "MCP: Stage Report to Disk",
+      "type": "n8n-nodes-mcp.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        560,
+        600
+      ],
+      "notes": "Part 3 addition. Calls the filesystem MCP server (built in Part 2) to write a durable, disk-backed copy of the generated report before the LLM quality gate and Drive upload. This is an independent, protocol-standardized audit checkpoint that n8n's native nodes did not previously provide for this in-memory report string.",
+      "parameters": {
+        "connectionType": "cmd",
+        "operation": "executeTool",
+        "toolName": "write_file",
+        "toolParameters": "={{ { \"path\": $env.MCP_STAGING_ROOT + \"/\" + $('Set Topic').item.json.topic.replace(/\\s+/g,'_') + \"_\" + $now.format('yyyy-MM-dd') + \".md\", \"content\": $json.report } }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "name": "MCP Filesystem Server (STDIO)"
+        }
+      }
+    },
+    {
+      "id": "18",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1000,
+        560
+      ],
+      "notes": "Part 6. Reuses the same Anthropic account already used by the LLM Summarizer/old Quality Review nodes, but as a native n8n credential (required by this node type) rather than the generic HTTP Header Auth used by the existing httpRequest-based Anthropic calls.",
+      "parameters": {
+        "model": "claude-sonnet-4-6",
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "name": "Anthropic API (native)"
+        }
+      }
+    },
+    {
+      "id": "19",
+      "name": "MCP Tool: Filesystem",
+      "type": "n8n-nodes-mcp.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        700
+      ],
+      "notes": "Part 6. Same server/process as Part 2-3's 'MCP: Stage Report to Disk' node -- exposed to the Agent as a tool instead of a fixed workflow step. Recommend restricting Allowed Tools in this node's config to read_text_file, get_file_info, edit_file only (agent never needs write_file/move_file/create_directory).",
+      "parameters": {
+        "connectionType": "cmd",
+        "operation": "executeTool"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "name": "MCP Filesystem Server (STDIO)"
+        }
+      }
+    },
+    {
+      "id": "20",
+      "name": "AI Agent: Editor",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        780,
+        420
+      ],
+      "notes": "Part 6. Replaces the deterministic 'Quality Review (LLM)' + 'Review Passed?' pair. Max Iterations=3. Emits a structured final verdict (APPROVE or ESCALATE) after an internal reason -> tool call -> observe loop using the MCP Tool: Filesystem node.",
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.report }}",
+        "hasOutputParser": true,
+        "options": {
+          "maxIterations": 3,
+          "systemMessage": "={{ $('Load System Prompt').item.json.systemPrompt }}"
+        }
+      },
+      "credentials": {}
+    },
+    {
+      "id": "21",
+      "name": "Route by Verdict",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1220,
+        420
+      ],
+      "notes": "Part 6. Deterministic routing on the agent's structured output field 'verdict'. REVISE is handled INSIDE the agent's own tool-loop via edit_file, not as a workflow cycle back to Markdown Generator -- see Part 6 write-up for why that Part 5 diagram detail was simplified.",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-approve",
+              "leftValue": "={{ $json.output.verdict }}",
+              "rightValue": "APPROVE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Topic": {
+      "main": [
+        [
+          {
+            "node": "Search API (Tavily)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search API (Tavily)": {
+      "main": [
+        [
+          {
+            "node": "No Results?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Results?": {
+      "main": [
+        [
+          {
+            "node": "Alert: No Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "LLM Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Filter Failed Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Failed Items": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Markdown Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown Generator": {
+      "main": [
+        [
+          {
+            "node": "MCP: Stage Report to Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Upload (Approved)": {
+      "main": [
+        [
+          {
+            "node": "Gmail Notification (Approved)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Upload (Needs Review)": {
+      "main": [
+        [
+          {
+            "node": "Gmail Notification (Needs Review)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP: Stage Report to Disk": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Editor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Editor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Tool: Filesystem": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent: Editor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Editor": {
+      "main": [
+        [
+          {
+            "node": "Route by Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Verdict": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Upload (Approved)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Drive Upload (Needs Review)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateNote": "Reconnect all credentials by name after import \u2014 see docs/installation-guide.md, Section 2. No credential secrets are stored in this file."
+  }
+}
