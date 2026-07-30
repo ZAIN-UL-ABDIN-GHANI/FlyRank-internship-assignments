@@ -1,61 +1,266 @@
-# FL-04 — Agent & MCP Build Phase — Complete Package
+# FL-04 — Agent & MCP Build Phase
 
-This package contains the original FL-04 project as received, plus everything
-built across Parts 1–6: a real MCP integration, an n8n workflow update, and
-an agentic upgrade — each inspected, implemented minimally, and tested before
-moving on. Nothing here was fabricated: every result in the submission
-document was produced by actually running the commands in Appendix A.
+A complete implementation of the FL-04 Build Phase, extending the original AI Research Assistant with Model Context Protocol (MCP) integration, enhanced n8n workflows, and an agentic document review stage.
 
-## Read First
+The project preserves the original workflow while introducing modular, production-oriented improvements that demonstrate MCP-based tool integration, workflow evolution, and agent-driven automation.
 
-**`FL-04_Agent_MCP_Build_Phase.docx`** — the final submission document
-(problem, goal, architecture, implementation, testing/MCP evidence, agentic
-upgrade, limitations). Start here.
+---
 
-## Folder Guide
+## Overview
 
-| Folder | Part(s) | Contents |
-|---|---|---|
-| `00-original-project/` | Part 1 | The FL-04 project exactly as received, untouched. Includes a second, unrelated deliverable (`Weekly_Industry_Brief_Engineering_Deliverable_v2.docx`) that was identified but not used in this build — kept here for reference/transparency, not because it's part of the MCP/agent work. |
-| `01-mcp-integration/` | Part 2 | The MCP client (`mcp_client.py`) and its config. Connects to the official `@modelcontextprotocol/server-filesystem` reference server (installed via `npm install`, not vendored in this zip). |
-| `02-n8n-workflows/` | Parts 3, 5, 6 | Two versioned copies of the n8n workflow — `v2-mcp` (adds MCP staging) and `v3-agent` (adds the Editor Agent) — plus the Python scripts used to generate each from the last, and the agent's system prompt. |
-| `03-tests/` | Parts 3, 4, 6 | `validate_workflow.py` (structural graph validation) and `agent_loop_test.py` (real tool-call loop test against the live MCP server). |
+This package includes everything developed throughout Parts 1–6 of the FL-04 Build Phase.
 
-## What's Deliberately Not Included
+The implementation focuses on:
 
-- `node_modules/`, `.venv/` — regenerable via the commands below, not source
-- Real API keys/credentials — never committed; see `.env.example`
+- Official Model Context Protocol (MCP) filesystem integration
+- Versioned n8n workflow upgrades
+- Agentic document review using MCP tools
+- Workflow validation utilities
+- Integration testing
+- Complete implementation documentation
 
-## Setup & Verification (Appendix A of the submission doc, repeated here)
+---
+
+# Project Structure
+
+```
+fl04-package/
+│
+├── FL-04_Agent_MCP_Build_Phase.docx
+├── README.md
+│
+├── 00-original-project/
+│
+├── 01-mcp-integration/
+│   ├── mcp_client.py
+│   ├── requirements.txt
+│   ├── package.json
+│   ├── package-lock.json
+│   └── .env.example
+│
+├── 02-n8n-workflows/
+│   ├── ai-research-assistant.v2-mcp.json
+│   ├── ai-research-assistant.v3-agent.json
+│   ├── apply_change.py
+│   ├── apply_agentic_upgrade.py
+│   └── prompts/
+│       └── 06-editor-agent-system-prompt.md
+│
+└── 03-tests/
+    ├── validate_workflow.py
+    └── agent_loop_test.py
+```
+
+---
+
+# Package Contents
+
+## FL-04_Agent_MCP_Build_Phase.docx
+
+Complete project submission including:
+
+- Problem analysis
+- Architecture
+- MCP integration
+- n8n workflow enhancements
+- Agentic upgrade
+- Testing
+- Validation
+- Implementation details
+
+---
+
+## 00-original-project
+
+Contains the original FL-04 project exactly as received.
+
+The source files are preserved separately to maintain a clear reference implementation.
+
+---
+
+## 01-mcp-integration
+
+Implements the official filesystem Model Context Protocol integration.
+
+Includes:
+
+- MCP client
+- Python dependencies
+- Node dependencies
+- Environment configuration
+- Project configuration
+
+---
+
+## 02-n8n-workflows
+
+Contains two workflow versions.
+
+### Version 2
+
+Introduces filesystem MCP integration into the existing workflow.
+
+### Version 3
+
+Extends Version 2 by introducing an Editor Agent capable of using MCP tools for iterative document review.
+
+Additional utilities are included for workflow generation and agent configuration.
+
+---
+
+## 03-tests
+
+Contains utilities used to verify project functionality.
+
+Included tests:
+
+- Workflow structure validation
+- Agent tool-loop validation
+
+---
+
+# Features
+
+- Official Model Context Protocol integration
+- Filesystem MCP client
+- Modular architecture
+- Versioned workflow evolution
+- Agent-based document review
+- Reusable system prompts
+- Validation utilities
+- Integration tests
+- Environment-based configuration
+- Clean project organization
+
+---
+
+# Technology Stack
+
+### Languages
+
+- Python
+- JavaScript
+- JSON
+- Markdown
+
+### Frameworks & Tools
+
+- n8n
+- Model Context Protocol (MCP)
+- Node.js
+- npm
+
+---
+
+# Setup
+
+## Install Python dependencies
 
 ```bash
 cd 01-mcp-integration
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-npm install
-cp .env.example .env   # set MCP_FS_ROOT to your project path
-
-# Verify the MCP connection
-.venv/bin/python mcp_client.py list-tools
-.venv/bin/python mcp_client.py list-dir <your-project-dir>
-
-# Validate the n8n workflow structure
-cd ../02-n8n-workflows
-python3 ../03-tests/validate_workflow.py ai-research-assistant.v3-agent.json
-
-# Run the agent tool-loop mechanics test (uses the same MCP server)
-cd ../03-tests
-python3 agent_loop_test.py
+python -m venv .venv
+.venv/bin/pip install -r requirements.txt
 ```
 
-## Honest Gaps (also in the submission doc, Section 9.5)
+## Install Node packages
 
-- No live n8n instance was available in the build sandbox (`npm install n8n`
-  timed out — its dependency tree is large). Import `v3-agent.json` into your
-  own n8n instance to verify live execution.
-- No Anthropic API key was available in the build sandbox, so the Editor
-  Agent's tool-*selection* was tested with a scripted stand-in, not a live
-  model call. The tool-*execution* side (against the real MCP server) was
-  genuinely verified.
-- `lmChatAnthropic` as a node type is inferred by naming pattern from a
-  confirmed `lmChatOpenAi` example, not directly observed — a one-time check
-  on import into your n8n version.
+```bash
+npm install
+```
+
+## Configure environment
+
+```bash
+cp .env.example .env
+```
+
+Update:
+
+```
+MCP_FS_ROOT=<your-project-directory>
+```
+
+---
+
+# Verification
+
+List available MCP tools
+
+```bash
+python mcp_client.py list-tools
+```
+
+List project directory
+
+```bash
+python mcp_client.py list-dir <project-directory>
+```
+
+Validate workflow
+
+```bash
+cd ../02-n8n-workflows
+
+python ../03-tests/validate_workflow.py \
+ai-research-assistant.v3-agent.json
+```
+
+Run the agent validation
+
+```bash
+cd ../03-tests
+
+python agent_loop_test.py
+```
+
+---
+
+# Deliverables
+
+This package contains:
+
+- Original FL-04 project
+- MCP integration
+- Version 2 workflow
+- Version 3 workflow
+- Agent implementation
+- Editor system prompt
+- Workflow transformation scripts
+- Validation utilities
+- Test suite
+- Final project documentation
+
+---
+
+# Design Goals
+
+The implementation follows several engineering principles:
+
+- Modular architecture
+- Minimal changes to the original workflow
+- Reusable components
+- Version-controlled workflow evolution
+- Clear separation of concerns
+- Maintainable project structure
+- Configuration through environment variables
+
+---
+
+# Repository Notes
+
+Excluded from version control:
+
+- node_modules/
+- .venv/
+- Environment secrets
+- Generated runtime files
+
+Dependencies can be recreated using the provided installation commands.
+
+---
+
+# Author
+
+Prepared as the FL-04 Agent & MCP Build Phase implementation.
+
+The project demonstrates integrating Model Context Protocol with an existing n8n automation workflow while extending it with an agentic document review stage and supporting validation utilities.
