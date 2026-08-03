@@ -13,30 +13,37 @@ Each assignment is organized in its own directory and includes a dedicated `READ
 
 ## Repository Structure
 
-```text
 .
+├── AI Fluency/
+│   ├── Project-01/
+│   ├── Project-02/
+│   └── Project-03/
 ├── Assignment-01/
-│   └── README.md
 ├── Assignment-02/
-│   └── README.md
 ├── Assignment-03/
-│   └── README.md
+├── Assignment-04/
+├── Assignment-05/
 └── README.md
 ```
 
-## Assignments
-| No. | Assignment | Status |
-|-----|-----------------------------------------------|----------------|
-| 01 | FastAPI Minimal Backend | ✅ Completed |
-| 02 | Node.js + Express Course Project | ✅ Completed |
-| 03 | Node.js + Express Course Dockerized | ✅ Completed |
-| 03 | FastAPI + PostgreSQL + Docker self practice| ✅ Completed |
-| 04 | Coming Soon | ⏳ |
-| 05 | Coming Soon | ⏳ |
+## 📚 Repository Contents
 
-> Each assignment folder contains complete documentation, source code, and instructions for evaluation.
+| No. | Section | Status |
+|----:|----------------------------------|:------:|
+| AI-01 | AI Fluency – Project 01 | ✅ Completed |
+| AI-02 | AI Fluency – Project 02 | ✅ Completed |
+| AI-03 | AI Fluency – Project 03 | ✅ Completed |
+| AI-04 | AI Fluency – Project 04 | ⏳ Coming Soon |
+| AI-05 | AI Fluency – Project 05 | ⏳ Coming Soon |
+| 01 | Assignment 01 | ✅ Completed |
+| 02 | Assignment 02 | ✅ Completed |
+| 03 | Assignment 03 | ✅ Completed |
+| 04 | Assignment 04 | ✅ Completed |
+| 05 | Assignment 05 | ✅ Completed |
+| 06 | Assignment 06 | ⏳ Coming Soon |
+| 07 | Assignment 07 | ⏳ Coming Soon |
 
----
+> Each folder contains its own source code, documentation, setup guide, and implementation details.
 
 ## Author
 
