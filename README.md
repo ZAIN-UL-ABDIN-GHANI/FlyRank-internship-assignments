@@ -11,25 +11,30 @@ Each assignment is organized in its own directory and includes a dedicated `READ
 - Testing steps
 - Screenshots (where applicable)
 
-## Repository Structure
+## 📂 Repository Structure
 
+```text
 .
 ├── AI Fluency/
 │   ├── Project-01/
 │   ├── Project-02/
-│   └── Project-03/
+│   ├── Project-03/
+│   ├── Project-04/
+│   └── Project-05/
 ├── Assignment-01/
 ├── Assignment-02/
 ├── Assignment-03/
 ├── Assignment-04/
 ├── Assignment-05/
+├── Assignment-06/
+├── Assignment-07/
 └── README.md
 ```
 
 ## 📚 Repository Contents
 
-| No. | Section | Status |
-|----:|----------------------------------|:------:|
+| No. | Category | Status |
+|:---:|----------------------------------|:------:|
 | AI-01 | AI Fluency – Project 01 | ✅ Completed |
 | AI-02 | AI Fluency – Project 02 | ✅ Completed |
 | AI-03 | AI Fluency – Project 03 | ✅ Completed |
@@ -43,8 +48,7 @@ Each assignment is organized in its own directory and includes a dedicated `READ
 | 06 | Assignment 06 | ⏳ Coming Soon |
 | 07 | Assignment 07 | ⏳ Coming Soon |
 
-> Each folder contains its own source code, documentation, setup guide, and implementation details.
-
+> **Note:** Each folder contains its own source code, documentation, setup instructions, and implementation details.
 ## Author
 
 **Zain ul Abdin Ghani**
