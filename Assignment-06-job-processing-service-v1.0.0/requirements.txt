@@ -1,0 +1,33 @@
+# Core web framework (SDD Section 5 - Assumptions: FastAPI)
+fastapi>=0.128.0,<0.142.0
+uvicorn[standard]>=0.32.0,<0.36.0
+
+# Validation / settings (Pydantic v2)
+pydantic>=2.9.0,<3.0.0
+pydantic-settings>=2.6.0,<3.0.0
+
+# Persistence layer (SDD Section 7.4) - PostgreSQL via async SQLAlchemy
+# Note: SQLAlchemy 2.0+ no longer installs greenlet by default; the
+# [asyncio] extra is required for AsyncSession / async engine support.
+sqlalchemy[asyncio]>=2.0.36,<2.1.0
+asyncpg>=0.30.0,<0.31.0
+alembic>=1.14.0,<1.17.0
+
+# Sync driver for the Celery worker's DB session (app/db/worker_session.py) -
+# workers stay synchronous throughout rather than mixing asyncio into
+# Celery's prefork model.
+psycopg[binary]>=3.2.0,<3.3.0
+
+# Queue / broker + cache layer (SDD Section 7.2, 7.5) - Celery + Redis
+celery[redis]>=5.6.0,<5.7.0
+redis>=5.2.0,<6.1.0
+
+# Auth (SDD Section 16) - verifies bearer tokens from the existing platform
+# auth system per SDD Section 5 (Assumptions)
+pyjwt>=2.9.0,<2.11.0
+
+# Metrics (SDD Section 18)
+prometheus-client>=0.21.0,<0.23.0
+
+# Environment loading (local dev; container envs are injected directly)
+python-dotenv>=1.0.1,<1.1.0
