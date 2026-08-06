@@ -1,0 +1,46 @@
+# Alertmanager routing config (SDD Section 13).
+# Routes by severity label set in monitoring/prometheus/alert_rules.yml:
+#   critical -> PagerDuty (page on-call immediately)
+#   warning  -> Slack (#alerts channel)
+#   info     -> Email (daily digest, via a longer group_wait/repeat_interval)
+#
+# Placeholders below (routing_key, api_url, webhook path) need real
+# credentials injected via your secret manager - never commit real values.
+
+route:
+  receiver: slack-warnings
+  group_by: ["alertname"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers:
+        - severity = "critical"
+      receiver: pagerduty-critical
+      group_wait: 10s
+      repeat_interval: 15m
+    - matchers:
+        - severity = "warning"
+      receiver: slack-warnings
+    - matchers:
+        - severity = "info"
+      receiver: email-digest
+      group_interval: 12h
+      repeat_interval: 24h
+
+receivers:
+  - name: pagerduty-critical
+    pagerduty_configs:
+      - routing_key: "REPLACE_WITH_REAL_PAGERDUTY_INTEGRATION_KEY"
+        severity: critical
+
+  - name: slack-warnings
+    slack_configs:
+      - api_url: "REPLACE_WITH_REAL_SLACK_WEBHOOK_URL"
+        channel: "#alerts-job-processing"
+        send_resolved: true
+
+  - name: email-digest
+    email_configs:
+      - to: "oncall-digest@example.com"
+        send_resolved: false

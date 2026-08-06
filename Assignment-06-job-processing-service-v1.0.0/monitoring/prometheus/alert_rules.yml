@@ -1,0 +1,74 @@
+# Prometheus alert rules (SDD Section 13).
+#
+# Status of each rule against what's actually instrumented in this codebase:
+#   APIErrorRateHigh, DeadLetterQueueGrowth  - fully supported by
+#     app/core/metrics.py + the middleware in app/main.py.
+#   WorkerPoolDown  - uses Prometheus's own scrape-health metric as a proxy.
+#     This detects "the worker's /metrics endpoint stopped responding", not
+#     precisely "0 healthy workers" - a worker wedged but still serving
+#     metrics wouldn't trip it. A Celery-aware exporter (e.g. celery-exporter)
+#     reading real heartbeats would be more accurate; not built here, same
+#     reasoning as the queue-depth gap in deploy/k8s/hpa.yaml.
+#   QueueBacklogAge  - references a metric (job_queue_oldest_pending_age_seconds)
+#     that does NOT exist yet. Needs a Redis/Celery queue-depth exporter,
+#     same one referenced in hpa.yaml's comments. Left in as a placeholder
+#     matching the SDD's table rather than silently dropped.
+#   JobSLABreach  - references a metric (job_in_progress_duration_seconds)
+#     that does NOT exist yet either. job_processing_duration_seconds only
+#     records COMPLETED jobs; detecting a job currently stuck in IN_PROGRESS
+#     needs a periodic check (e.g. a Celery beat task querying the DB for
+#     IN_PROGRESS jobs with an old started_at) that isn't implemented.
+
+groups:
+  - name: job-processing-service
+    rules:
+      - alert: APIErrorRateHigh
+        expr: |
+          sum(rate(api_requests_total{status_code=~"5.."}[5m]))
+          /
+          sum(rate(api_requests_total[5m]))
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API 5xx error rate above 5% over 5 minutes"
+          sdd_reference: "Section 13 - API Error Rate"
+
+      - alert: DeadLetterQueueGrowth
+        expr: increase(jobs_completed_total{outcome="dead_letter"}[5m]) > 10
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than 10 jobs dead-lettered in the last 5 minutes"
+          sdd_reference: "Section 13 - DLQ Growth"
+
+      - alert: WorkerPoolDown
+        expr: up{job="job-processing-worker"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Worker metrics endpoint unreachable for 2 minutes (proxy for 0 healthy workers - see file header)"
+          sdd_reference: "Section 13 - Worker Pool Down"
+
+      # NOT YET BACKED BY A REAL METRIC - see file header.
+      - alert: QueueBacklogAge
+        expr: job_queue_oldest_pending_age_seconds > 300
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Oldest pending job older than 5 minutes"
+          sdd_reference: "Section 13 - Queue Backlog Age"
+          status: "placeholder - requires a queue-depth exporter, not yet deployed"
+
+      # NOT YET BACKED BY A REAL METRIC - see file header.
+      - alert: JobSLABreach
+        expr: job_in_progress_duration_seconds > 600
+        labels:
+          severity: info
+        annotations:
+          summary: "A job has been IN_PROGRESS for longer than 10 minutes"
+          sdd_reference: "Section 13 - Job SLA Breach"
+          status: "placeholder - requires a periodic in-flight-duration check, not yet implemented"

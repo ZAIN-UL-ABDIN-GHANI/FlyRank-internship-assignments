@@ -1,0 +1,28 @@
+# Prometheus scrape config (SDD Section 18).
+# Static targets shown for local/docker-compose use - swap for
+# kubernetes_sd_configs in a real cluster deployment (the worker
+# Deployment's `metrics` port, declared in deploy/k8s/worker-deployment.yaml,
+# is what a k8s service-discovery config would target).
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: "job-processing-api"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+
+  - job_name: "job-processing-worker"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["worker:9100"]
