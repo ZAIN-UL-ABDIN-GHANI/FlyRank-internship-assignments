@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1
+FROM python:3.12-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /srv
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+# NOTE: once the AI operation wrapper (app/services/ai_operation.py) is
+# implemented in a later phase, its model/SDK dependencies (e.g. an LLM
+# provider client) should be added to a separate requirements-worker.txt
+# and installed here, so the API image is not bloated with them.
+
+RUN useradd --create-home --uid 1000 appuser
+
+COPY app ./app
+RUN mkdir -p /tmp/prometheus_multiproc && chown -R appuser:appuser /srv /tmp/prometheus_multiproc
+ENV PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus_multiproc
+
+USER appuser
+
+EXPOSE 9100
+
+# Graceful shutdown: Celery's default TERM behavior (warm shutdown) lets
+# in-flight tasks finish, matching SDD Section 9 (Queue and Worker Lifecycle).
+STOPSIGNAL SIGTERM
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD celery -A app.workers.celery_app inspect ping -d "celery@$HOSTNAME" || exit 1
+
+CMD ["celery", "-A", "app.workers.celery_app", "worker", \
+     "--loglevel=INFO", \
+     "--concurrency=4", \
+     "-Q", "default"]

@@ -1,0 +1,28 @@
+# SDD NFR2 calls for scaling driven by queue depth. That requires an
+# external metrics source (e.g. KEDA with a Redis/Celery queue-length
+# scaler, or a custom Prometheus adapter) which depends on the observability
+# stack that is Phase 4 work (SDD Section 19). Until then, this HPA scales
+# on CPU utilization using the standard Kubernetes metrics-server, so
+# autoscaling isn't blocked waiting on Phase 4 - swap the `metrics:` block
+# for a queue-depth-based one once Prometheus is in place.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: job-processing-worker-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: job-processing-worker
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-processing-api
+  labels:
+    app: job-processing-api
+spec:
+  replicas: 2 # SDD Section 6: API1..APIN behind a load balancer
+  selector:
+    matchLabels:
+      app: job-processing-api
+  template:
+    metadata:
+      labels:
+        app: job-processing-api
+    spec:
+      containers:
+        - name: api
+          image: job-processing-service-api:latest # replace with your registry path
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: job-processing-secrets
+          # Liveness: process is up (app/api/v1/endpoints/health.py::liveness)
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          # Readiness: DB + Redis reachable (::readiness)
+          readinessProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-processing-api
+spec:
+  selector:
+    app: job-processing-api
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP

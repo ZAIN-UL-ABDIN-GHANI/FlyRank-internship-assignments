@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-processing-worker
+  labels:
+    app: job-processing-worker
+spec:
+  replicas: 2 # scaled independently from the API tier - see hpa.yaml (SDD NFR2)
+  selector:
+    matchLabels:
+      app: job-processing-worker
+  template:
+    metadata:
+      labels:
+        app: job-processing-worker
+    spec:
+      # SDD Section 9: allow in-flight tasks to finish on SIGTERM
+      # (task_acks_late + graceful worker shutdown) rather than being killed.
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: worker
+          image: job-processing-service-worker:latest # replace with your registry path
+          ports:
+            - containerPort: 9100
+              name: metrics
+          envFrom:
+            - secretRef:
+                name: job-processing-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "1Gi"
