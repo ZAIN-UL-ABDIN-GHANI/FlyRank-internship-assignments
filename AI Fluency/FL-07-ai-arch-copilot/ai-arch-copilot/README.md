@@ -145,7 +145,3 @@ Dockerfile, .dockerignore   Container image definition
 .github/workflows/ci.yml   Test suite + Docker build on push/PR
 ```
 
-## Known Limitations (MVP scope)
-
-- `/agent/review` is stateless (no session history); use `/agent/gather` if you want the review tied to a
-  planning conversation.
